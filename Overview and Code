@@ -1,0 +1,100 @@
+
+### Project Overview: AR Interior Design
+
+**Objective**: Create an augmented reality app that lets users visualize furniture and decor in their own homes using their mobile devices.
+
+**Tools/Technologies**:
+- **Unity**: Game development platform for creating 3D and 2D games and interactive experiences.
+- **Vuforia**: AR platform that enables apps to see and interact with real-world objects.
+- **ARKit/ARCore**: Apple's and Google's AR development platforms for iOS and Android, respectively.
+- **C#**: Programming language used within Unity.
+
+### Step-by-Step Implementation
+
+#### Step 1: Set Up Unity and Vuforia
+
+1. **Install Unity**: Download and install the latest version of Unity from the [Unity website](https://unity.com/).
+2. **Create a New Project**: Open Unity and create a new 3D project.
+3. **Install Vuforia**: In Unity, go to the Unity Asset Store and search for Vuforia Engine. Download and import it into your project.
+4. **Enable Vuforia**: Go to `Edit > Project Settings > XR Settings` and check the "Vuforia Augmented Reality" option.
+
+#### Step 2: Configure Vuforia
+
+1. **Vuforia License Key**: Sign up on the [Vuforia Developer Portal](https://developer.vuforia.com/), create a new license key, and copy it.
+2. **Add AR Camera**: Delete the default main camera in the scene. Add a Vuforia AR Camera by going to `GameObject > Vuforia Engine > AR Camera`. Paste your license key in the AR Camera component in the Inspector.
+
+#### Step 3: Set Up Image Targets
+
+1. **Image Targets**: These are the images that Vuforia will track and use to place 3D models in the real world.
+2. **Upload Image**: In the Vuforia Developer Portal, go to the Target Manager, create a new database, and upload the images you want to use as targets. Download the database and import it into Unity.
+3. **Add Image Target**: In Unity, go to `GameObject > Vuforia Engine > Image Target`. Select your database and image target from the dropdown in the Image Target Behaviour component.
+
+#### Step 4: Add 3D Furniture Models
+
+1. **Import 3D Models**: Download or create 3D models of furniture in FBX format and import them into your Unity project.
+2. **Place Models**: Drag the 3D models into the hierarchy, making them children of the Image Target GameObject. Adjust their position, rotation, and scale as needed.
+
+#### Step 5: Scripting
+
+1. **Add Interactivity**: Create a C# script to allow users to interact with the 3D models (e.g., move, rotate, scale). Here’s a simple script to move a furniture model.
+
+```csharp
+using UnityEngine;
+
+public class FurnitureInteraction : MonoBehaviour
+{
+    private Vector3 offset;
+    private float dist;
+    private Transform toDrag;
+
+    void Update()
+    {
+        if (Input.touchCount == 1)
+        {
+            Touch touch = Input.GetTouch(0);
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            RaycastHit hit;
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (Physics.Raycast(ray, out hit))
+                {
+                    if (hit.collider.CompareTag("Furniture"))
+                    {
+                        dist = hit.transform.position.z - Camera.main.transform.position.z;
+                        toDrag = hit.transform;
+                        offset = toDrag.position - ray.GetPoint(dist);
+                    }
+                }
+            }
+            if (touch.phase == TouchPhase.Moved && toDrag != null)
+            {
+                Vector3 point = ray.GetPoint(dist) + offset;
+                toDrag.position = point;
+            }
+            if (touch.phase == TouchPhase.Ended)
+            {
+                toDrag = null;
+            }
+        }
+    }
+}
+```
+
+2. **Attach Script**: Attach the script to the 3D furniture models. Add a collider to the models if they don’t have one and tag them as "Furniture".
+
+#### Step 6: Build and Test
+
+1. **Build Settings**: Go to `File > Build Settings`, switch the platform to either iOS or Android depending on your target device, and add the current scene.
+2. **Player Settings**: In the Player Settings, configure the necessary settings for your target platform (e.g., bundle identifier, orientation).
+3. **Build and Run**: Connect your mobile device to your computer, build and run the app on the device, and test the AR functionalities.
+
+### Final Touches
+
+- **UI Elements**: Add UI elements to help users interact with the app (e.g., buttons to change furniture models, adjust scale).
+- **Optimization**: Optimize the 3D models and app performance for smoother AR experience.
+- **User Feedback**: Test the app with users and gather feedback to improve the user experience.
+
+### Conclusion
+
+This project provides a basic framework for creating an AR Interior Design app using Unity and Vuforia.
